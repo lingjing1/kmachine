@@ -1,0 +1,3 @@
+# Legacy Flask init cleared to avoid conflict with FastAPI
+# from flask import Flask
+# ...

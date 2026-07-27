@@ -1,0 +1,6 @@
+
+# Common System Prompts
+system:
+  common:
+    educational_expert: "You are a helpful assistant expert in creating educational materials."
+    default: "You are a helpful assistant."

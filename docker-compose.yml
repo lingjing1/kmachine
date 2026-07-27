@@ -1,0 +1,40 @@
+# Cook.ai 合併部署（前端 + 後端，GPU）
+#   一行啟動：docker compose up -d --build
+#   看 log：  docker compose logs -f
+#   停止：    docker compose down
+services:
+  cookai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 前端 build-time API 位址：留空 = 相對 /api（同 origin，換網域免重 build）
+        VITE_API_URL: ""
+    container_name: cookai
+    ports:
+      # host 18888（共用機上的空 port）→ 容器內 8888。外部用 http://140.115.54.162:18888 連。
+      # 8888 已被別人佔用，故對外用 18888；容器內部仍是 8888（不用動）。
+      - "18888:8888"
+    # workers 由 Dockerfile CMD 決定（目前 2）。要調整在這裡加 command override 即可，免重 build。
+    env_file:
+      - ./.env
+    volumes:
+      # 只持久化「資料」相關目錄（不要把 host 原始碼掛進來蓋掉 image，那是 dev 模式）
+      - ./backend/storage:/app/backend/storage
+      # LIME 報告檔案：container 會寫入學生評估結果 HTML/JSON。
+      # 不掛 volume 的話，每次 docker compose up -d --build 都會清空。
+      - ./backend/lime_reports:/app/backend/lime_reports
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - cook_network
+
+networks:
+  cook_network:
+    driver: bridge

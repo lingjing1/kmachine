@@ -1,0 +1,20 @@
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/*.log
+**/.env*
+!**/.env.example
+.git
+.gitignore
+.vscode
+.claude
+.pytest_cache
+venv
+dist
+backend/storage/*
+backend/cook_ai.db
+backend/lime_reports/*
+frontend/dist
+frontend/node_modules
+
+# 注意：models/（BERT 模型 391MB）必須保留進 image，勿在此排除

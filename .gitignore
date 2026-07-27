@@ -1,0 +1,150 @@
+# ===================================================================
+# Python
+# ===================================================================
+# Virtual Environment
+venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===================================================================
+# Node.js / React (Vite)
+# ===================================================================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Vite build output
+dist/
+
+# Optional ESLint cache
+.eslintcache
+
+# Environment variables - VERY IMPORTANT!
+# Never commit secret keys or environment variables.
+# Instead, create a `.env.example` file to show what variables are needed.
+.env
+.env.*
+.env.local
+.env.*.local
+!.env.example
+credentials.json
+token.json
+
+# ===================================================================
+# IDE / Editor
+# ===================================================================
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains / Cursor / Windsurf
+.idea/
+.cursor/
+.windsurf/
+
+# Claude Code (per-project settings & local state)
+.claude/
+
+# Editor swap / backup
+*.swp
+*.swo
+*~
+
+# ===================================================================
+# Operating System Files
+# ===================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===================================================================
+# Application-specific Files
+# ===================================================================
+# Backend storage (uploaded attachments)
+backend/storage/
+
+# LIME Reports
+backend/lime_reports/
+
+# Kappa 評估研究用 local artifact（CSV/XLSX + 本地腳本；DB 才是 source of truth）
+lime_llm_evaluation/
+
+# ML Models
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+
+# Local data folders（2026-06-09 加回：這些路徑在本機仍存在，含本地資料/模型，
+# 不應推上 public repo。先前 commit c7c79da 誤判為「dead path」而移除。）
+models/
+scripts/extracted_content/
+scripts/material/
+
+# ===================================================================
+# Python tooling caches
+# ===================================================================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# ===================================================================
+# Jupyter
+# ===================================================================
+.ipynb_checkpoints/
+
+# ===================================================================
+# Personal / Handoff (2026-05-20)
+# ===================================================================
+# 論文撰寫、分析 notebook、個人 Claude Code 指令、學姊論文檔案：
+# 僅保留在本機，不推上 public repo。完整的論文資料與交接素材另置於
+# 私有 repo（待建立），請洽前任維護者取得權限。
+docs/
+notebooks/
+CLAUDE.md
