@@ -51,10 +51,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # --- Add CORS Middleware ---
 origins = [
+    "http://localhost:5173", # Lab IP
+    "http://127.0.0.1:5173", # Lab IP
     "http://localhost:3001", # Lab IP
     "http://127.0.0.1:3001", # Lab IP
-    "http://localhost:3002", # Lab IP
-    "http://127.0.0.1:3002", # Lab IP
     "http://140.115.54.161:8888", # Prod API
     "http://140.115.54.162:3001", # Current Dev Frontend
     "http://140.115.54.162:3002", # Current Dev Frontend Alternative

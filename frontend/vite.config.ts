@@ -12,7 +12,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     envDir: '../',
     server: {
-      port: 3001,
+      port: 5173,
       host: '0.0.0.0',
       proxy: {
         '/api': {
