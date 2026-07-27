@@ -1,8 +1,8 @@
-# Cook.ai
+# Kant
 
-**CooK Teaching** — 為教師（不限科目、年級）設計的 AI 助教系統，提供 AI 出題、教材總結、知識點（KP）抽取與學生學習分析。教師端與學生端共用同一套後端。
+**Kant Teaching** — 為教師（不限科目、年級）設計的 AI 助教系統，提供 AI 出題、教材總結、知識點（KP）抽取與學生學習分析。教師端與學生端共用同一套後端。
 
-> 📌 **完整系統架構、設計決策、交接細節**，見實驗室**私有交接 repo** `NCU-AIKslab/CooK.ai-2026-handoff`：
+> 📌 **完整系統架構、設計決策、交接細節**，見實驗室**私有交接 repo** `NCU-AIKslab/Kant.ai-2026-handoff`：
 > `teacher_side_research/developer_handbook.md`（架構手冊）、`future_work.md`（待辦與已知問題）。
 > 本 README 聚焦「**如何啟動與部署**」。
 
