@@ -1,7 +1,7 @@
 """
 Authentication router: 處理使用者註冊、登入等功能
 """
-from fastapi import APIRouter, HTTPException, File, UploadFile, Form, Security
+from fastapi import APIRouter, HTTPException, File, UploadFile, Form, Security, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional
@@ -16,7 +16,7 @@ from backend.app.utils.db_logger import engine, metadata
 from backend.app.constants.departments import ALL_DEPARTMENTS
 from backend.app.services.email_service import generate_verification_code, send_verification_email, send_teacher_verification_email
 from backend.app.utils.concurrency import run_in_db_pool
-from backend.app.utils.auth_utils import create_access_token  # ✅ 新增
+from backend.app.utils.auth_utils import create_access_token, get_current_user_id  # ✅ 新增
 
 # 建立 Router
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
@@ -107,6 +107,14 @@ class LoginResponse(BaseModel):
     access_token: str  # ✅ 新增 JWT token
     token_type: str = "bearer"  # ✅ 新增 token 類型
     message: str = "登入成功"
+
+
+class UserResponse(BaseModel):
+    """目前登入使用者資訊（供 /me 端點與前端身分一致性檢查使用）"""
+    user_id: int
+    email: str
+    full_name: str
+    role: str
 
 
 # ==================== Helper Functions ====================
@@ -540,6 +548,39 @@ async def login_user(request: LoginRequest):
         role=result["role"],
         access_token=access_token,  # ✅ 返回 token
         token_type="bearer"
+    )
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_me(user_id: int = Depends(get_current_user_id)):
+    """
+    取得目前 token 對應的使用者資訊。
+
+    前端用這支 API 確認「這個瀏覽器分頁現在拿到的 token 到底屬於誰」，
+    而不是依賴自己記憶體或 localStorage 裡可能已經過期的快取。
+    """
+    def _sync_get_me(uid):
+        with engine.connect() as conn:
+            query = select(
+                users_table.c.id,
+                users_table.c.email,
+                users_table.c.full_name,
+                roles_table.c.name.label('role_name')
+            ).select_from(
+                users_table.join(roles_table, users_table.c.role_id == roles_table.c.id)
+            ).where(users_table.c.id == uid)
+            return conn.execute(query).fetchone()
+
+    result = await run_in_db_pool(_sync_get_me, user_id)
+
+    if not result:
+        raise HTTPException(status_code=404, detail="使用者不存在")
+
+    return UserResponse(
+        user_id=result.id,
+        email=result.email,
+        full_name=result.full_name,
+        role=result.role_name
     )
 
 

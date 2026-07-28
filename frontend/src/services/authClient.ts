@@ -189,6 +189,13 @@ class AuthClient {
             throw new Error('Network error or request failed');
         }
     }
+
+    /**
+     * 取得目前 token 對應的使用者資訊（後端為準，不是 localStorage 快取）
+     */
+    async getMe(): Promise<{ user_id: number; email: string; full_name: string; role: string }> {
+        return this.get('/api/auth/me');
+    }
 }
 
 // Export singleton instance

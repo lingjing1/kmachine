@@ -18,7 +18,7 @@ import { useUser } from '../../contexts/UserContext';
 
 function Overview() {
   const queryClient = useQueryClient();
-  const { user } = useUser();
+  const { user, refreshAuthenticatedUser } = useUser();
   const navigate = useNavigate();
   const { setHeaderActions } = useOutletContext<any>() || {};
 
@@ -90,6 +90,19 @@ function Overview() {
 
     try {
       setIsJoining(true);
+
+      // 寫入操作前先跟後端核對目前 token 真正屬於誰，
+      // 避免其他分頁登入別的帳號、還沒同步完成前就誤加到錯的帳號
+      const currentUser = await refreshAuthenticatedUser();
+      if (!currentUser || String(currentUser.user_id) !== String(user?.user_id)) {
+        setToast({
+          show: true,
+          message: '偵測到登入身分已變更，畫面已更新，請確認目前帳號後再試一次',
+          type: 'error'
+        });
+        return;
+      }
+
       const result = await joinCourse(joinCode);
       setToast({ show: true, message: `成功加入課程：${result.course_name}`, type: 'success' });
       setShowJoinModal(false);
