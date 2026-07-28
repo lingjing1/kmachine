@@ -43,6 +43,7 @@ import { PDFViewer } from '../../components/common/PDFViewer';
 import Tooltip from '../../components/common/Tooltip';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Toast from '../../components/common/Toast';
+import authClient from '../../services/authClient';
 
 interface OutletContext {
   setBreadcrumbPaths: React.Dispatch<React.SetStateAction<Array<{ name: string; path: string }> | null>>;
@@ -191,6 +192,12 @@ const TopicPreview = () => {
     sectionId?: number;
     refType?: 'question' | 'section';
   } | null>(null);
+
+  useEffect(() => {
+    if (activeContent?.id) {
+      authClient.post(`/api/student/contents/${activeContent.id}/mark-viewed`, {}).catch(() => {});
+    }
+  }, [activeContent?.id]);
 
   // Handle Independent Resize Logic
   useEffect(() => {

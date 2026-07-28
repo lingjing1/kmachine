@@ -10,12 +10,14 @@ Student Preview Flow Router
 5. BERT Mastery 評估
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from sqlalchemy import text
 from backend.app.utils.auth_utils import get_current_user_id  # ✅ Phase 3: JWT 認證
 from typing import List, Optional, Dict, Tuple, Any
 import json
 import os
 import re
 from datetime import datetime
+from backend.app.utils.concurrency import run_in_db_pool
 from backend.app.utils.time_utils import get_now_taipei
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -52,6 +54,8 @@ router = APIRouter(
     tags=["student-preview"]
 )
 
+# 沒有已發佈練習題的教材，改用「累積閱讀秒數達門檻」作為完成 fallback 判斷
+READING_COMPLETION_THRESHOLD_SECONDS = 30
 
 # ==================== Helper Functions ====================
 
@@ -285,7 +289,18 @@ async def get_student_unit_contents(
                     WHERE cckp2.course_content_id = cc.id
                       AND qb2.is_published = true
                       AND qb2.is_deleted IS NOT TRUE
-                ) as has_practice_questions
+                ) as has_practice_questions,
+                (
+                    SELECT COALESCE(SUM(arl.reading_time_seconds), 0)
+                    FROM attachments att
+                    JOIN attachment_reading_logs arl
+                        ON arl.attachment_id = att.id AND arl.student_id = :student_id
+                    WHERE att.attachable_type = 'material' AND att.attachable_id = cc.id
+                ) as reading_seconds,
+                EXISTS (
+                    SELECT 1 FROM student_content_views scv
+                    WHERE scv.student_id = :student_id AND scv.content_id = cc.id
+                ) as has_been_viewed
             FROM course_contents cc
             JOIN course_units cu ON cc.unit_id = cu.id
             JOIN courses c ON cu.course_id = c.id
@@ -337,34 +352,30 @@ async def get_student_unit_contents(
             
             # 處理 Knowledge Points & Completion Logic
             kps_status = row[15] if row[15] else []
+            has_practice_questions = bool(row[18])
+            reading_seconds = row[19] or 0
+            source_type = row[4]
             
-            # Logic: If content is linked to KPs, check if all are completed.
+            has_practice_questions = bool(row[18])
+            reading_seconds = row[19] or 0
+            has_been_viewed = bool(row[20])
+            source_type = row[4]
+
             is_completed = False
             
             if kps_status:
-                # Remove duplicates based on id
                 unique_kps = {kp['id']: kp for kp in kps_status}.values()
                 kps_data = [{'id': kp['id'], 'name': kp['name']} for kp in unique_kps]
                 
-                # Check completion: All KPs must be completed (preview_completed=true)
-                # Only check for 'material' type? Or all? Usually applied to preview material.
-                # If subtype is 'preview', strict check.
-                if row[3] == 'preview':
-                     is_completed = all(kp.get('is_completed', False) for kp in unique_kps)
+                if has_practice_questions:
+                    is_completed = all(kp.get('is_completed', False) for kp in unique_kps)
                 else:
-                     # For other types, maybe default to True or N/A. 
-                     # Let's keep it False by default unless logic dictates.
-                     # But for download restriction, we want it True only if preview done.
-                     # Actually, if it's 'material' (uploaded PDF), it might be 'preview' subtype.
-                     # If subtype is NOT preview, maybe it doesn't need restriction?
-                     # Task says: "Student side: Add download... (only after preview completed)"
-                     # This implies the material IS the preview material.
-                     is_completed = all(kp.get('is_completed', False) for kp in unique_kps)
+                    if source_type == 'uploaded_content':
+                        is_completed = reading_seconds >= READING_COMPLETION_THRESHOLD_SECONDS
+                    else:
+                        is_completed = has_been_viewed
             else:
                 kps_data = []
-                # If no KPs linked, is it completed? 
-                # Maybe True (unrestricted) or False (locked)?
-                # Let's assume generic materials without KPs are unrestricted -> True.
                 is_completed = True
             
             items.append(StudentContentItem(
@@ -1322,3 +1333,22 @@ async def download_material(
         filename=file_name,
         media_type=media_type or 'application/octet-stream'
     )
+
+@router.post("/contents/{content_id}/mark-viewed")
+async def mark_content_viewed(
+    content_id: int,
+    student_id: int = Depends(get_current_user_id)
+):
+    """記錄學生已經打開過這份教材"""
+    def _sync_mark(sid, cid):
+        with engine.begin() as conn:
+            conn.execute(
+                text("""
+                    INSERT INTO student_content_views (student_id, content_id)
+                    VALUES (:sid, :cid)
+                    ON CONFLICT (student_id, content_id) DO NOTHING
+                """),
+                {"sid": sid, "cid": cid}
+            )
+    await run_in_db_pool(_sync_mark, student_id, content_id)
+    return {"message": "已記錄"}
