@@ -11,7 +11,7 @@ import API_BASE_URL from '../config/api';
 
 function Home() {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { login } = useUser();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -120,9 +120,11 @@ function Home() {
         role: data.role
       };
 
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('access_token', data.access_token);  // ✅ Phase 4: 儲存 JWT token
-      setUser(userData);
+      const proceeded = login(userData, data.access_token);
+      if (!proceeded) {
+        setIsLoading(false);
+        return;
+      }
 
       if (data.role === 'admin') {
         navigate('/admin');

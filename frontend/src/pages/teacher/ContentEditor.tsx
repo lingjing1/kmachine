@@ -214,7 +214,7 @@ export default function ContentEditor() {
                     content_snapshot: currentResult?.content?.content
                 });
 
-                const token = localStorage.getItem('access_token') || '';
+                const token = sessionStorage.getItem('access_token') || '';
                 try {
                     fetch(`${API_BASE_URL}/api/teacher/logs/action`, {
                         method: 'POST',

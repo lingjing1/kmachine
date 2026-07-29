@@ -176,7 +176,7 @@ const EvaluationExperiment: React.FC = () => {
   const { data: contents = [], isLoading, isError } = useQuery<ExperimentContentResponse[]>({
     queryKey: ['experimentEvaluations'],
     queryFn: async () => {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`${API_BASE_URL}/api/teacher/experiment/evaluations`, {
         cache: 'no-store',
         headers: {
@@ -268,7 +268,7 @@ const EvaluationExperiment: React.FC = () => {
 
   const submitPhase1 = useMutation({
     mutationFn: async () => {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const { Faithfulness, ...restQualityScores } = qualityScores;
 
       const res = await fetch(`${API_BASE_URL}/api/teacher/experiment/evaluations/submit`, {
@@ -297,7 +297,7 @@ const EvaluationExperiment: React.FC = () => {
 
   const submitPhase2 = useMutation({
     mutationFn: async (evalId: number) => {
-      const token = localStorage.getItem('access_token');
+      const token = sessionStorage.getItem('access_token');
       const res = await fetch(`${API_BASE_URL}/api/teacher/experiment/evaluations/feedback`, {
         method: 'POST',
         headers: {

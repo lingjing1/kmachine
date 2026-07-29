@@ -12,7 +12,7 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const navigate = useNavigate();
-    const { setUser } = useUser();
+    const { login } = useUser();
     const [form, setForm] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             const data = await response.json();
 
-            // 儲存使用者資訊
             const userData = {
                 user_id: data.user_id,
                 email: data.email,
@@ -46,9 +45,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 role: data.role
             };
 
-            localStorage.setItem('user', JSON.stringify(userData));
-            localStorage.setItem('access_token', data.access_token);  // ✅ Phase 4: 儲存 JWT token
-            setUser(userData);
+            const proceeded = login(userData, data.access_token);
+            if (!proceeded) {
+                // 使用者在切換帳號確認框按了「取消」，中止登入流程
+                setIsLoading(false);
+                return;
+            }
 
             // 關閉 Modal
             onClose();

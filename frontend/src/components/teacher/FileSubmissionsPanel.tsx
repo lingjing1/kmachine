@@ -76,7 +76,7 @@ export default function FileSubmissionsPanel({
         try {
             const response = await fetch(`${API_BASE_URL}/api/teacher/file-submissions/download-file/${submissionId}/${filename}`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('access_token')}`
                 }
             });
             if (!response.ok) throw new Error('下載失敗');
@@ -99,7 +99,7 @@ export default function FileSubmissionsPanel({
         try {
             const response = await fetch(`${API_BASE_URL}/api/teacher/file-submissions/${contentId}/download-all`, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('access_token')}`
                 }
             });
             if (!response.ok) throw new Error('下載失敗');
