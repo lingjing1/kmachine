@@ -426,7 +426,7 @@ export async function submitReadingLog(
 export async function submitReadingLogKeepalive(
     data: ReadingLogRequest
 ): Promise<any> {
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     return fetch(`${API_BASE_URL}/api/student/reading/logs`, {
         method: 'POST',
         headers: {
@@ -1047,7 +1047,7 @@ export async function uploadFileSubmission(
     const formData = new FormData();
     formData.append('file', file);
 
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     const response = await fetch(`${API_BASE_URL}/api/student/file-submissions/${contentId}/upload`, {
         method: 'POST',
         headers: {
@@ -1087,7 +1087,7 @@ export async function deleteFileSubmissionFile(
     contentId: number,
     filename: string
 ): Promise<FileSubmissionStatus> {
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     const response = await fetch(`${API_BASE_URL}/api/student/file-submissions/${contentId}/files/${encodeURIComponent(filename)}`, {
         method: 'DELETE',
         headers: {

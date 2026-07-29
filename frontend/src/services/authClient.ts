@@ -5,7 +5,7 @@ import API_BASE_URL from '../config/api';
  * AuthClient - 統一的 API 請求工具，自動處理 JWT 認證
  * 
  * 功能：
- * - 自動從 localStorage 讀取 token
+ * - 自動從 sessionStorage 讀取 token（每個分頁獨立登入狀態）
  * - 自動注入 Authorization header
  * - 處理 401 錯誤（token 過期）
  * - 提供 GET, POST, PUT, DELETE 方法
@@ -15,7 +15,7 @@ class AuthClient {
      * 獲取 Authorization header
      */
     private getAuthHeader(): HeadersInit {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         if (!token) {
             return {};
         }
@@ -85,8 +85,8 @@ class AuthClient {
      */
     private handleUnauthorized() {
         // 清除 token 和用戶資訊
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
 
         // 導向首頁（會觸發登入）
         window.location.href = '/';
@@ -191,7 +191,7 @@ class AuthClient {
     }
 
     /**
-     * 取得目前 token 對應的使用者資訊（後端為準，不是 localStorage 快取）
+     * 取得目前 token 對應的使用者資訊（後端為準，不是 sessionStorage 快取）
      */
     async getMe(): Promise<{ user_id: number; email: string; full_name: string; role: string }> {
         return this.get('/api/auth/me');

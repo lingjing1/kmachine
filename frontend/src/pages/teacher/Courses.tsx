@@ -100,7 +100,7 @@ function Courses() {
     const { setHeaderActions } = useOutletContext<any>() || {};
     const { user } = useUser(); // 取得當前登入的使用者
     const getAuthHeaders = (): Record<string, string> => {
-        const token = localStorage.getItem('access_token');
+        const token = sessionStorage.getItem('access_token');
         return token ? { 'Authorization': `Bearer ${token}` } : {};
     };
 

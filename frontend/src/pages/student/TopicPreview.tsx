@@ -1267,7 +1267,7 @@ const TopicPreview = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={(e) => {
-                                          const token = localStorage.getItem('access_token');
+                                          const token = sessionStorage.getItem('access_token');
                                           if (token) {
                                             e.preventDefault();
                                             fetch(e.currentTarget.href, {

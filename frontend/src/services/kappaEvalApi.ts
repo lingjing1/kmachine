@@ -163,7 +163,7 @@ export interface FinetunePerformanceSubmit {
 // ==================== HTTP helper ====================
 // 自動注入 JWT，與專案既有 authClient 相容
 async function authFetch<T>(url: string, init?: RequestInit): Promise<T> {
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

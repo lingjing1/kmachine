@@ -179,7 +179,7 @@ export default function AdminPage() {
     const [srlTooltip, setSrlTooltip] = useState<{ x: number; y: number; students: any[]; dim: any; isLocked?: boolean } | null>(null);
     const srlTooltipRef = useRef<HTMLDivElement>(null);
     const itemsPerPage = 7;
-    const token = localStorage.getItem('access_token') || '';
+    const token = sessionStorage.getItem('access_token') || '';
     const authHeader = { Authorization: `Bearer ${token}` };
 
     // Security Check

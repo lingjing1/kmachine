@@ -41,8 +41,8 @@ export default function SessionExpiryWarning() {
 
     const handleLogout = useCallback(() => {
         // 先清除 token，避免 redirect 後頁面 reload 時重新觸發過期警告
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
         logout();
         window.location.href = '/';
     }, [logout]);
@@ -52,9 +52,9 @@ export default function SessionExpiryWarning() {
      * 用於初始載入時發現 token 已過期的情境。
      */
     const silentLogout = useCallback(() => {
-        // 清除 localStorage，避免下次 useEffect 重跑時又讀到舊 token
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
+        // 清除 sessionStorage，避免下次 useEffect 重跑時又讀到舊 token
+        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('user');
         logout();
         // 不用 window.location.href 避免閃爍，使用者會自然看到登入頁
     }, [logout]);
@@ -65,7 +65,7 @@ export default function SessionExpiryWarning() {
     const handleExtendSession = useCallback(async () => {
         setIsRefreshing(true);
         try {
-            const token = localStorage.getItem('access_token');
+            const token = sessionStorage.getItem('access_token');
             if (!token) {
                 handleLogout();
                 return;
@@ -86,7 +86,7 @@ export default function SessionExpiryWarning() {
             }
 
             const data = await response.json();
-            localStorage.setItem('access_token', data.access_token);
+            sessionStorage.setItem('access_token', data.access_token);
             setState('hidden');
             hasAutoLoggedOut.current = false;
         } catch {
@@ -105,7 +105,7 @@ export default function SessionExpiryWarning() {
             return;
         }
 
-        // 公開頁面（登入/註冊）：不顯示 dialog，不動 localStorage
+        // 公開頁面（登入/註冊）：不顯示 dialog，不動 sessionStorage
         // 使用者已在登入頁，不需要主動清除 token
         if (isPublicPage) {
             setState('hidden');
@@ -113,7 +113,7 @@ export default function SessionExpiryWarning() {
         }
 
         const checkExpiry = () => {
-            const token = localStorage.getItem('access_token');
+            const token = sessionStorage.getItem('access_token');
             if (!token) {
                 if (isInitialCheck.current) {
                     // 初次檢查：沒有 token 代表舊 session，靜默登出不顯示警告
